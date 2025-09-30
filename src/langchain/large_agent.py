@@ -22,9 +22,6 @@ db_client = ChromaConnect().get_connection()
 collection = db_client.get_collection(name="my_collection")
 
 
-llm_memory = ConversationBufferWindowMemory(k=3)
-
-
 llm = HuggingFaceEndpoint(
     repo_id=MODEL_LLM,
     task="conversational",
