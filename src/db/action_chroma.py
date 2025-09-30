@@ -2,8 +2,6 @@ import logging
 import uuid
 from datetime import datetime
 
-from src.db.chroma_connect import ChromaConnect
-
 from dotenv import load_dotenv
 
 from langchain_huggingface.embeddings import HuggingFaceEmbeddings
@@ -30,10 +28,9 @@ embedding_model = HuggingFaceEmbeddings(
 
 class ActionWithCromaDB:
     def __init__(self, embedding, collection_name: str, persist_directory):
-        self.embedding = embedding
         self.vector_db = Chroma(
             collection_name=collection_name,
-            embedding_function=self.embedding,
+            embedding_function=embedding,
             persist_directory=persist_directory,
         )
         self.collections = {}
