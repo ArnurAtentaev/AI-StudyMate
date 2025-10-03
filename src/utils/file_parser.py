@@ -1,7 +1,7 @@
-from pypdf import PdfReader, PdfWriter
+from pathlib import Path
 
 
-def pdf_clipping(reader: PdfReader, writer: PdfWriter, path):
+def pdf_clipping(reader, writer, path: Path):
     for i in range(69, 103 + 1):
         writer.add_page(reader.pages[i])
 

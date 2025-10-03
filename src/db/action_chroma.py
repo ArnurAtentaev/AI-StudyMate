@@ -35,12 +35,12 @@ class ActionWithCromaDB:
         )
         self.collections = {}
 
-    def add_doc(self, documents: list, metadatas: list = None):
+    def add_docs(self, documents: list, metadatas: list = None):
         if metadatas is None:
             metadatas = [{"date": str(datetime.now())} for _ in documents]
 
         self.vector_db.add_texts(documents, metadatas=metadatas)
 
-    def query_doc(self, query_text: str, n_results: int = 4):
+    def query_docs(self, query_text: str, n_results: int = 4):
         results = self.vector_db.similarity_search(query_text, k=n_results)
         return results

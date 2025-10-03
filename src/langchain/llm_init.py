@@ -2,8 +2,6 @@ import os
 
 from dotenv import load_dotenv
 
-from src.db.chroma_connect import ChromaConnect
-
 from langchain_huggingface import (
     ChatHuggingFace,
     HuggingFaceEndpoint,
@@ -16,6 +14,7 @@ from langchain.memory import ConversationBufferWindowMemory
 
 CONFIG = load_dotenv("../../.env")
 MODEL_LLM = "meta-llama/Llama-3.1-8B-Instruct"
+HF_TOKEN = os.getenv("HF_TOKEN")
 
 
 db_client = ChromaConnect().get_connection()
@@ -28,7 +27,7 @@ llm = HuggingFaceEndpoint(
     temperature=0.5,
     top_k=10,
     top_p=0.9,
-    huggingfacehub_api_token=os.getenv("HF_TOKEN"),
+    huggingfacehub_api_token=HF_TOKEN,
 )
 
 
