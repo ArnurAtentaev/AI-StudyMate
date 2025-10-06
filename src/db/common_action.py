@@ -2,7 +2,6 @@ import logging
 import os
 from datetime import datetime
 
-from src.utils.action_chroma import ActionWithCromaDB
 from src.utils.preprocessing_docs import PreprocessingDocs, detect_file_type
 
 from langchain.document_loaders import (
