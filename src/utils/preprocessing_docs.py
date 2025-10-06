@@ -1,9 +1,18 @@
+import os
 import re
 from pathlib import Path
 
 from src.abstractions.preprocessing_abc import AbstractPreprocess
 
 from langchain_core.documents import Document
+
+
+def detect_file_type(file: str) -> str:
+    extention = os.path.splitext(file)[1].lower()
+    if extention == ".pdf":
+        return "pdf"
+    elif extention in (".doc", ".docx"):
+        return "doc"
 
 
 class PreprocessingDocs(AbstractPreprocess):
