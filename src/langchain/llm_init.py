@@ -43,10 +43,13 @@ embedding_model = HuggingFaceEmbeddings(
 
 if __name__ == "__main__":
     a = CommonAction(
-        embedding=embedding_model,
+        embedding_model=embedding_model,
         collection_name="documents_collection",
         persist_directory="./chroma_db",
     )
-    a.add_to_chroma(docs="./file.pdf")
-    result = a.query_docs(query_text="select")
+    # a.add_to_chroma(docs="./file.pdf")
+    result = a.query_docs(query_text="что такое подзапрос")
+    items = a.vector_db.get(include=["embeddings", "documents"])
     print(result)
+    print(len(items["embeddings"]))
+    print(items["embeddings"][:10])
