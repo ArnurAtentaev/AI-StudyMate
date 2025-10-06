@@ -20,9 +20,9 @@ class PreprocessingDocs(AbstractPreprocess):
         self.loader = loader
         self.splitter = splitter
 
-    def load_docs(self, path: Path) -> Document:
+    def load_docs(self, path: Path):
         splitted_docs = self.splitter(
-            chunk_size=1000, chunk_overlap=100, separators=["\n\n", "\n", ".", " ", ""]
+            chunk_size=600, chunk_overlap=100, separators=["\n\n", "\n", ".", " ", ""]
         )
         loader = self.loader(path, mode="single", languages=["ru"])
         docs = loader.load()
@@ -30,7 +30,7 @@ class PreprocessingDocs(AbstractPreprocess):
 
         return splitted
 
-    def text_normalize(self, docs) -> list:
+    def text_normalize(self, docs) -> list[Document]:
         cleaned = []
         for d in docs:
             text = d.page_content
