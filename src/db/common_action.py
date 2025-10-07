@@ -11,13 +11,14 @@ from langchain.document_loaders import (
 from langchain_chroma import Chroma
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain.schema import Document
+from langchain.retrievers import BM25Retriever, EnsembleRetriever, MultiQueryRetriever
 
 
 class CommonAction:
-    def __init__(self, embedding_model, collection_name: str, persist_directory):
+    def __init__(self, embedding_model, collection_name: str):
         self.embedding_model = embedding_model
         self.collection_name = collection_name
-        self.persist_directory = persist_directory
+        self.persist_directory = "./chroma_db"
         self.vector_db = Chroma(
             collection_name=self.collection_name,
             embedding_function=self.embedding_model,
@@ -56,9 +57,22 @@ class CommonAction:
 
             self.vector_db.add_documents(documents=cleaned_docs)
 
-    def query_docs(self, query_text: str, n_results: int = 3):
-        retriever = self.vector_db.as_retriever(
-            search_kwargs={"k": n_results}, search_type="similarity"
+    def query_docs(self, query_text: str, chain, n_results: int = 3):
+        docs = self.vector_db.get(include=["documents"])
+        docs = [Document(page_content=d) for d in docs["documents"]]
+
+        store_retriever = self.vector_db.as_retriever(
+            search_kwargs={
+                "k": n_results,
+            },
+            search_type="similarity",
         )
-        results = retriever.invoke(input=query_text)
+        bm25_retriever = BM25Retriever.from_documents(documents=docs)
+        ensemble_retriever = EnsembleRetriever(
+            retrievers=[store_retriever, bm25_retriever], weights=[0.5, 0.5]
+        )
+        multi_retriever = MultiQueryRetriever(
+            retriever=ensemble_retriever, llm_chain=chain
+        )
+        results = multi_retriever.invoke(query_text)
         return results
