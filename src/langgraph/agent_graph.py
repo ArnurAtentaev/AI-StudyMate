@@ -1,8 +1,8 @@
-from src.langgraph.states.web_states import StatesWebSearcher
+from src.langgraph.states import GlobalState
 
-from langgraph.graph import StateGraph, END
+from langgraph.graph import StateGraph, START, END
 
 
-graph_workflow = StateGraph(StatesWebSearcher)
-graph_workflow.add_node(node="first node")
-
+graph_workflow = StateGraph(GlobalState)
+graph_workflow.add_node()
+graph_workflow.add_node()
