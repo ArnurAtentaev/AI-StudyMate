@@ -9,6 +9,7 @@ from src.langchain.llm_init import initialize_llm
 from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_community.utilities import GoogleSerperAPIWrapper
+from langchain_community.document_loaders import UnstructuredURLLoader
 
 
 CONFIG = load_dotenv(".env")
@@ -36,9 +37,15 @@ prompt_for_retrieves = ChatPromptTemplate.from_messages(
 )
 
 
+def get_question_node(state: GlobalState):
+    user_query = input("Введите запрос: ")
+    state.query = user_query
+    return state
+
+
 def retriever_node(state: GlobalState, collection_name):
     db = CommonAction(embedding_model=embedding_model, collection_name=collection_name)
-    llm = initialize_llm(task="text-generation", config="rag")
+    llm = initialize_llm(task="text-generation", temperature=0.5, config="search")
     llm_chain = prompt_for_retrieves | llm | LineListOutputParser()
 
     db_results = db.query_docs(query_text=state.query, chain=llm_chain)
@@ -48,17 +55,15 @@ def retriever_node(state: GlobalState, collection_name):
 
 def web_searcher_node(state: GlobalState):
     serper_conn = GoogleSerperAPIWrapper(
-        k=3,
-        result_key_for_type={"search": "search"},
-        gl="ru",
-        hl="rus",
-        serper_api_key=SERPER_API,
+        k=5, serper_api_key=SERPER_API, result_key_for_type={"search": "organic"}
     )
     res_search = serper_conn.results(query=state.query)
-    state.context = res_search
+
+    snippets = [item["snippet"] for item in res_search.get("organic", [])]
+    all_info = "\n\n".join(snippets)
+
+    state.context = all_info
     return state
 
 
-state = GlobalState(query="что такое from?")
-res = retriever_node(state=state, collection_name="docs_collection")
-print(res)
+
