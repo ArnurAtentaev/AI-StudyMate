@@ -24,8 +24,8 @@ embedding_model = HuggingFaceEmbeddings(
 
 
 def initialize_llm(
-    task: Optional[Literal["text-generation", "conversational"]],
-    temperature: float,
+    temperature: float | int,
+    task: Optional[Literal["text-generation", "conversational"]] = None,
     config: Optional[Literal["search"]] = None,
 ):
     llm = HuggingFaceEndpoint(
