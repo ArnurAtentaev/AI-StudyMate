@@ -11,7 +11,7 @@ from langchain.document_loaders import (
 from langchain_chroma import Chroma
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain.schema import Document
-from langchain.retrievers import BM25Retriever, EnsembleRetriever, MultiQueryRetriever
+from langchain.retrievers import EnsembleRetriever, MultiQueryRetriever
 
 
 class CommonAction:
@@ -67,12 +67,8 @@ class CommonAction:
             },
             search_type="similarity",
         )
-        bm25_retriever = BM25Retriever.from_documents(documents=docs)
-        ensemble_retriever = EnsembleRetriever(
-            retrievers=[store_retriever, bm25_retriever], weights=[0.5, 0.5]
-        )
         multi_retriever = MultiQueryRetriever(
-            retriever=ensemble_retriever, llm_chain=chain
+            retriever=store_retriever, llm_chain=chain
         )
         results = multi_retriever.invoke(query_text)
         return results

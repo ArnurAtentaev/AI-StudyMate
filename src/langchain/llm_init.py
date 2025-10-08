@@ -25,7 +25,7 @@ embedding_model = HuggingFaceEmbeddings(
 
 def initialize_llm(
     task: Optional[Literal["text-generation", "conversational"]],
-    config: Optional[Literal["chat"]] = None,
+    config: Optional[Literal["rag"]] = None,
 ):
     llm = HuggingFaceEndpoint(
         repo_id=MODEL_LLM,
@@ -35,7 +35,7 @@ def initialize_llm(
         top_p=0.9,
         huggingfacehub_api_token=HF_TOKEN,
     )
-    if config == "chat":
+    if config == "rag":
         chat_model = ChatHuggingFace(llm=llm, verbose=True)
         return chat_model
     return llm
