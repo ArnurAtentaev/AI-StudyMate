@@ -3,9 +3,8 @@ from langchain_core.documents import Document
 
 
 class GlobalState(BaseModel):
-    docs: Document
-    metadata: dict
-    embeddings: list[float]
-    query: list[float]
-    results: str
-    answer: str
+    docs: list[Document] | None = None
+    metadata: dict | None = None
+    query: str | None = None
+    context: str | None = None
+    answer: str | None = None
