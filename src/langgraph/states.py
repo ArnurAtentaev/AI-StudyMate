@@ -3,6 +3,8 @@ from langchain_core.documents import Document
 
 
 class GlobalState(BaseModel):
+    """Общие состояния"""
+
     result_rag: list[str]
     relevant_documents: list[str]
     question: str
