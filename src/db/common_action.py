@@ -58,9 +58,6 @@ class CommonAction:
             self.vector_db.add_documents(documents=cleaned_docs)
 
     def query_docs(self, query_text: str, chain, n_results: int = 3):
-        docs = self.vector_db.get(include=["documents"])
-        docs = [Document(page_content=d) for d in docs["documents"]]
-
         store_retriever = self.vector_db.as_retriever(
             search_kwargs={
                 "k": n_results,
