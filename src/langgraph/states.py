@@ -1,10 +1,21 @@
-from pydantic import BaseModel
-from langchain_core.documents import Document
+from typing import Optional, List
+
+from pydantic import BaseModel, Field
 
 
 class GlobalState(BaseModel):
-    metadata: dict | None = None
-    draft_retriever: str | None = None
-    question: str | None = None
-    context: str | None = None
-    answer: str | None = None
+    """Общие состояния"""
+
+    question: str
+    result_rag: Optional[List[str]] = None
+    relevant_documents: List[str] = []
+    result_google: Optional[str] = None
+    answer: Optional[str] = None
+
+
+class GradeDocuments(BaseModel):
+    """Бинарная оценка релевантности результата RAG."""
+
+    binary_score: str = Field(
+        description="Documents are relevant to the question, 'yes' or 'no'"
+    )

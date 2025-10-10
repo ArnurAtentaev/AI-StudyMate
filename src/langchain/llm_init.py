@@ -2,41 +2,22 @@ import os
 from typing import Optional, Literal
 from dotenv import load_dotenv
 
-from langchain_huggingface import (
-    ChatHuggingFace,
-    HuggingFaceEndpoint,
-    HuggingFaceEmbeddings,
-)
-
+from langchain_huggingface import ChatHuggingFace, HuggingFaceEndpoint
+from langchain_groq import ChatGroq
+from langchain.schema import HumanMessage
 
 CONFIG = load_dotenv(".env")
-MODEL_LLM = "meta-llama/Llama-3.1-8B-Instruct"
-EMBEDDING_MODEL = "Qwen/Qwen3-Embedding-0.6B"
-HF_TOKEN = os.getenv("HF_TOKEN")
-
-model_kwargs = {"device": "cuda"}
-encode_kwargs = {"normalize_embeddings": True}
-embedding_model = HuggingFaceEmbeddings(
-    model_name=EMBEDDING_MODEL,
-    model_kwargs=model_kwargs,
-    encode_kwargs=encode_kwargs,
-)
+MODEL_LLM = "llama-3.3-70b-versatile"
+GROQ_API_KEY = os.getenv("GROQ_API_KEY")
 
 
 def initialize_llm(
     temperature: float | int,
-    task: Optional[Literal["text-generation", "conversational"]] = None,
-    config: Optional[Literal["search"]] = None,
 ):
-    llm = HuggingFaceEndpoint(
-        repo_id=MODEL_LLM,
-        task=task,
+    llm = ChatGroq(
+        model="llama-3.3-70b-versatile",
+        verbose=True,
+        api_key=GROQ_API_KEY,
         temperature=temperature,
-        top_k=10,
-        top_p=0.9,
-        huggingfacehub_api_token=HF_TOKEN,
     )
-    if config == "search":
-        chat_model = ChatHuggingFace(llm=llm, verbose=True)
-        return chat_model
     return llm
