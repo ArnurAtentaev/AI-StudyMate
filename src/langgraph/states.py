@@ -1,14 +1,16 @@
+from typing import Optional, List
+
 from pydantic import BaseModel, Field
-from langchain_core.documents import Document
 
 
 class GlobalState(BaseModel):
     """Общие состояния"""
 
-    result_rag: list[str]
-    relevant_documents: list[str]
     question: str
-    answer: str
+    result_rag: Optional[List[str]] = None
+    relevant_documents: List[str] = []
+    result_google: Optional[str] = None
+    answer: Optional[str] = None
 
 
 class GradeDocuments(BaseModel):

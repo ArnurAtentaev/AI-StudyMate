@@ -11,7 +11,7 @@ from langchain.document_loaders import (
 from langchain_chroma import Chroma
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain.schema import Document
-from langchain.retrievers import EnsembleRetriever, MultiQueryRetriever
+from langchain.retrievers import MultiQueryRetriever
 
 
 class CommonAction:
