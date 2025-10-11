@@ -1,34 +1,44 @@
 version: '3'
 
 services:
-  ollama:
-    image: ollama/ollama:latest
-    container_name: ollama
-    volumes:
-      - ollama_models:/root/.ollama
-    ports:
-      - "${OLLAMA_LOCAL}:${OLLAMA_API}"
-    deploy:
-      resources:
-        reservations:
-          devices:
-          - driver: nvidia
-            capabilities: ["gpu"]
-            count: all
+  postgres_db:
     restart: always
-  
-  api:
-    build: ./app
-    container_name: fastapi-app
+    image: postgres:15.14-alpine3.21
+    container_name: chat_memory_db
     ports:
-      - "8000:8000"
+      - "${PG_PORT_EXPOSED}:${PG_PORT_SERVICE}"
     environment:
-      - OLLAMA_URL=http://ollama:11434
-    depends_on:
-      - ollama
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=${POSTGRES_DB}
+    volumes:
+      - postgres_volume:/var/lib/postgresql/data/
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB} -p ${PG_PORT_SERVICE}"]
+      interval: 5s
+      timeout: 5s
+      retries: 3
+    networks:
+      - db
+  
+  chromadb:
     restart: always
+    image: chromadb/chroma:1.1.2.dev39
+    container_name: chromadb
+    ports:
+      - "${CHROMA_PORT_EXPOSED}:${CHROMA_PORT_SERVICE}"
+    environment:
+      - IS_PERSISTENT=TRUE
+      - PERSIST_DIRECTORY=/chroma/chroma
+    networks:
+      - db
+    volumes:
+      - chroma_db_volume:/chroma/chroma
 
+networks:
+  db:
+    driver: bridge
 
 volumes:
-  ollama_models:
-    name: ollama_models
+  postgres_volume:
+  chroma_db_volume:
