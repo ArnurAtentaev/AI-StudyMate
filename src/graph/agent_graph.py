@@ -1,5 +1,5 @@
-from src.langgraph.states import GlobalState
-from src.langgraph.nodes import (
+from src.graph.states import GlobalState
+from src.graph.nodes import (
     retriever_node,
     grade_rag_result,
     generate_answer_from_documents_node,
@@ -39,6 +39,6 @@ def build_graph():
 compiled_graph = build_graph()
 print("***********************************************************************************************")
 # print(compiled_graph.get_graph().draw_mermaid())
-state = compiled_graph.invoke({"question": "Что такое библия?"})
+state = compiled_graph.invoke({"question": "Расскажи что такое библия"})
 print("\nОтвет модели: \n")
 print(state["answer"])

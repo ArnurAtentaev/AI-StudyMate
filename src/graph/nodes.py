@@ -156,7 +156,7 @@ def transform_query(state) -> GlobalState:
         ]
     )
 
-    llm = initialize_llm(temperature=0.5)
+    llm = initialize_llm(temperature=0.7)
     question_rewriter = re_write_prompt | llm | StrOutputParser()
 
     better_question = question_rewriter.invoke({"question": state.question})
@@ -179,3 +179,11 @@ def web_searcher_node(state: GlobalState) -> GlobalState:
 
     state.result_google = all_info
     return state
+
+# state = GlobalState(question="Что такое библия?")
+# 
+# transf_question = transform_query(state)
+# print(transf_question)
+# search = web_searcher_node(transf_question)
+# print(search)
+
