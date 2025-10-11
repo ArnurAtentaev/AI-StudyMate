@@ -1,6 +1,5 @@
-import logging
 import os
-from datetime import datetime
+from dotenv import load_dotenv
 
 from src.utils.preprocessing_docs import PreprocessingDocs, detect_file_type
 
@@ -14,6 +13,11 @@ from langchain.schema import Document
 from langchain.retrievers import MultiQueryRetriever
 
 
+load_dotenv(".env")
+CHROMA_PORT_EXPOSED = os.getenv("CHROMA_PORT_EXPOSED")
+CHROMA_PORT_SERVICE = os.getenv("CHROMA_PORT_SERVICE")
+
+
 class CommonAction:
     def __init__(self, embedding_model, collection_name: str):
         self.embedding_model = embedding_model
@@ -22,7 +26,11 @@ class CommonAction:
         self.vector_db = Chroma(
             collection_name=self.collection_name,
             embedding_function=self.embedding_model,
-            persist_directory=self.persist_directory,
+            client_settings={
+                "chroma_api_impl": "rest",
+                "chroma_server_host": CHROMA_PORT_EXPOSED,
+                "chroma_server_http_port": CHROMA_PORT_SERVICE,
+            },
         )
 
     def add_to_chroma(self, docs):

@@ -3,10 +3,10 @@ from typing import List
 from dotenv import load_dotenv
 
 from src.db.common_action import CommonAction
-from src.langgraph.states import GlobalState, GradeDocuments
+from src.graph.states import GlobalState, GradeDocuments
 from src.utils.parsers import LineListOutputParser
-from src.langchain.llm_init import initialize_llm
-from src.langgraph.prompts import (
+from src.langchain_utils.llm_init import initialize_llm
+from src.graph.prompts import (
     PROMPT_FOR_RETRIEVER,
     PROMPT_FOR_ANSWER,
     PROMPT_FOR_GRADE_RESULT_RAG,
@@ -19,7 +19,6 @@ from langchain_community.utilities import GoogleSerperAPIWrapper
 from langchain_core.documents import Document
 from langchain_core.tools import tool
 from langchain_core.output_parsers import StrOutputParser
-from langchain.memory import ConversationBufferWindowMemory
 
 
 CONFIG = load_dotenv(".env")
