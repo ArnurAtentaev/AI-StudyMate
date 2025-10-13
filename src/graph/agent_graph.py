@@ -2,7 +2,7 @@ from src.graph.states import GlobalState
 from src.graph.nodes import (
     retriever_node,
     grade_rag_result,
-    generate_answer_from_documents_node,
+    generate_answer_node,
     decide_to_generate,
     web_searcher_node,
     transform_query,
@@ -16,7 +16,7 @@ def build_graph():
 
     workflow.add_node("get_retriever_result", retriever_node)
     workflow.add_node("check_retriever_result", grade_rag_result)
-    workflow.add_node("rag_based_answer", generate_answer_from_documents_node)
+    workflow.add_node("generate_answer", generate_answer_node)
     workflow.add_node("web_search", web_searcher_node)
     workflow.add_node("transform_query", transform_query)
 
@@ -26,19 +26,19 @@ def build_graph():
         "check_retriever_result",
         decide_to_generate,
         {
-            "generate": "rag_based_answer",
+            "generate": "generate_answer",
             "transform_query": "transform_query",
         },
     )
     workflow.add_edge("transform_query", "web_search")
-    workflow.add_edge("web_search", "rag_based_answer")
-    workflow.add_edge("rag_based_answer", END)
+    workflow.add_edge("web_search", "generate_answer")
+    workflow.add_edge("generate_answer", END)
 
     return workflow.compile()
 
-compiled_graph = build_graph()
-print("***********************************************************************************************")
-# print(compiled_graph.get_graph().draw_mermaid())
-state = compiled_graph.invoke({"question": "Расскажи что такое библия"})
-print("\nОтвет модели: \n")
-print(state["answer"])
+# compiled_graph = build_graph()
+# print("***********************************************************************************************")
+# # print(compiled_graph.get_graph().draw_mermaid())
+# state = compiled_graph.invoke({"question": "Расскажи что такое библия"})
+# print("\nОтвет модели: \n")
+# print(state["answer"])

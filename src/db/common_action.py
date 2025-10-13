@@ -8,6 +8,7 @@ from langchain.document_loaders import (
     UnstructuredWordDocumentLoader,
 )
 from langchain_chroma import Chroma
+from chromadb.config import Settings
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain.schema import Document
 from langchain.retrievers import MultiQueryRetriever
@@ -26,11 +27,10 @@ class CommonAction:
         self.vector_db = Chroma(
             collection_name=self.collection_name,
             embedding_function=self.embedding_model,
-            client_settings={
-                "chroma_api_impl": "rest",
-                "chroma_server_host": CHROMA_PORT_EXPOSED,
-                "chroma_server_http_port": CHROMA_PORT_SERVICE,
-            },
+            client_settings=Settings(
+                chroma_server_host="localhost",
+                chroma_server_http_port=CHROMA_PORT_SERVICE,
+            ),
         )
 
     def add_to_chroma(self, docs):
