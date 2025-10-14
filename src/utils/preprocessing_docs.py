@@ -7,12 +7,14 @@ from src.abstractions.preprocessing_abc import AbstractPreprocess
 from langchain_core.documents import Document
 
 
-def detect_file_type(file: str) -> str:
-    extention = os.path.splitext(file)[1].lower()
+def detect_file_type(file_name: str) -> str:
+    extention = os.path.splitext(file_name)[1].lower()
     if extention == ".pdf":
         return "pdf"
     elif extention in (".doc", ".docx"):
         return "doc"
+    else:
+        raise ValueError("Unsupported file type")
 
 
 class PreprocessingDocs(AbstractPreprocess):
@@ -21,12 +23,9 @@ class PreprocessingDocs(AbstractPreprocess):
         self.splitter = splitter
 
     def load_docs(self, path: Path):
-        splitted_docs = self.splitter(
-            chunk_size=600, chunk_overlap=100, separators=["\n\n", "\n", ".", " ", ""]
-        )
         loader = self.loader(path, mode="single", languages=["ru"])
         docs = loader.load()
-        splitted = splitted_docs.split_documents(docs)
+        splitted = self.splitter.split_documents(docs)
 
         return splitted
 

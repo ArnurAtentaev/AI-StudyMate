@@ -2,7 +2,6 @@ version: '3'
 
 services:
   postgres_db:
-    restart: always
     image: postgres:15.14-alpine3.21
     container_name: chat_memory_db
     ports:
@@ -18,27 +17,23 @@ services:
       interval: 5s
       timeout: 5s
       retries: 3
-    networks:
-      - db
   
   chromadb:
-    restart: always
-    image: chromadb/chroma:1.1.2.dev39
+    image: chromadb/chroma:1.1.2.dev46
     container_name: chromadb
-    ports:
-      - "${CHROMA_PORT_EXPOSED}:${CHROMA_PORT_SERVICE}"
     environment:
       - IS_PERSISTENT=TRUE
-      - PERSIST_DIRECTORY=/chroma/chroma
-    networks:
-      - db
+      - PERSIST_DIRECTORY=/chroma_data
+      - ANONYMIZED_TELEMETRY=FALSE
     volumes:
-      - chroma_db_volume:/chroma/chroma
+      - chromadb_data:/chroma_data
+    ports:
+      - "${CHROMA_PORT_EXPOSED}:${CHROMA_PORT_SERVICE}"
 
 networks:
-  db:
+  net:
     driver: bridge
 
 volumes:
   postgres_volume:
-  chroma_db_volume:
+  chromadb_data:

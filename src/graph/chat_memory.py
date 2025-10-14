@@ -1,7 +1,6 @@
 import os
 from dotenv import load_dotenv
 
-from fastapi import Request, Response
 from langchain_postgres import PostgresChatMessageHistory
 import psycopg
 
@@ -19,7 +18,6 @@ CONNECTION = psycopg.connect(
     host="localhost",
     port=PG_PORT_EXPOSED,
 )
-
 
 def db_connection(session_id):
     chat_history_db = PostgresChatMessageHistory(

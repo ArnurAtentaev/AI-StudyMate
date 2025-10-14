@@ -15,7 +15,6 @@ from src.graph.prompts import (
     QUESTION_REWRITER_PROMPT,
 )
 
-from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_community.utilities import GoogleSerperAPIWrapper
 from langchain_core.messages import AIMessage, HumanMessage
@@ -27,25 +26,14 @@ log = logging.getLogger("nodes_logging")
 log.setLevel(logging.INFO)
 
 CONFIG = load_dotenv(".env")
-EMBEDDING_MODEL = "Qwen/Qwen3-Embedding-0.6B"
 SERPER_API = os.getenv("SERPER_API_KEY")
-
-model_kwargs = {"device": "cuda"}
-encode_kwargs = {"normalize_embeddings": True}
-embedding_model = HuggingFaceEmbeddings(
-    model_name=EMBEDDING_MODEL,
-    model_kwargs=model_kwargs,
-    encode_kwargs=encode_kwargs,
-)
 
 
 def retriever_node(state: GlobalState) -> GlobalState:
     """
     Get relevant documents from the vector store.
     """
-    db = CommonAction(
-        embedding_model=embedding_model, collection_name="docs_collection"
-    )
+    db = CommonAction(collection_name="docs_collection")
 
     prompt_for_retrieves = ChatPromptTemplate.from_messages(
         [

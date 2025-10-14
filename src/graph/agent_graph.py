@@ -35,10 +35,3 @@ def build_graph():
     workflow.add_edge("generate_answer", END)
 
     return workflow.compile()
-
-# compiled_graph = build_graph()
-# print("***********************************************************************************************")
-# # print(compiled_graph.get_graph().draw_mermaid())
-# state = compiled_graph.invoke({"question": "Расскажи что такое библия"})
-# print("\nОтвет модели: \n")
-# print(state["answer"])
