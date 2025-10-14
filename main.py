@@ -1,6 +1,5 @@
 import logging
 import tempfile
-import shutil
 import os
 
 import uvicorn
@@ -11,6 +10,7 @@ from src.graph.agent_graph import build_graph
 from src.db.common_action import CommonAction
 
 from fastapi import FastAPI, Request, Response, UploadFile
+from fastapi.responses import JSONResponse
 
 from src.utils.preprocessing_docs import detect_file_type
 
@@ -31,7 +31,9 @@ def chat_endpoint(request: Request, response: Response, question: str):
     compiled_graph = build_graph()
 
     state = compiled_graph.invoke({"session_id": session_id, "question": question})
-    return {"answer": state["answer"]}
+    answer_obj = state["answer"]
+    text = answer_obj.content
+    return JSONResponse(content={"answer": text})
 
 
 @app.post("/upload_file")
