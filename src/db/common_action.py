@@ -1,4 +1,5 @@
 import os
+import logging
 from dotenv import load_dotenv
 
 from src.utils.preprocessing_docs import PreprocessingDocs, detect_file_type
@@ -8,6 +9,7 @@ from langchain.document_loaders import (
     UnstructuredWordDocumentLoader,
 )
 from langchain_chroma import Chroma
+from langchain_huggingface import HuggingFaceEmbeddings
 from chromadb.config import Settings
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain.schema import Document
@@ -16,54 +18,51 @@ from langchain.retrievers import MultiQueryRetriever
 
 load_dotenv(".env")
 CHROMA_PORT_EXPOSED = os.getenv("CHROMA_PORT_EXPOSED")
-CHROMA_PORT_SERVICE = os.getenv("CHROMA_PORT_SERVICE")
+EMBEDDING_MODEL = "Qwen/Qwen3-Embedding-0.6B"
+
+model_kwargs = {"device": "cuda"}
+encode_kwargs = {"normalize_embeddings": True}
 
 
 class CommonAction:
-    def __init__(self, embedding_model, collection_name: str):
-        self.embedding_model = embedding_model
+    def __init__(self, collection_name: str):
         self.collection_name = collection_name
-        self.persist_directory = "./chroma_db"
+        self.embedding_model = HuggingFaceEmbeddings(
+            model_name=EMBEDDING_MODEL,
+            model_kwargs=model_kwargs,
+            encode_kwargs=encode_kwargs,
+        )
         self.vector_db = Chroma(
             collection_name=self.collection_name,
             embedding_function=self.embedding_model,
-            client_settings=Settings(
-                chroma_server_host="localhost",
-                chroma_server_http_port=CHROMA_PORT_SERVICE,
-            ),
+            persist_directory="/chroma_data",
         )
 
-    def add_to_chroma(self, docs):
-        ext = detect_file_type(docs)
-        if ext == "pdf":
+    def add_to_chroma(self, docs, file_type):
+        splitter = RecursiveCharacterTextSplitter(
+            chunk_size=600, chunk_overlap=100, separators=["\n\n", "\n", ".", " ", ""]
+        )
+
+        if file_type == "pdf":
             preprocessing_docs = PreprocessingDocs(
-                splitter=RecursiveCharacterTextSplitter,
+                splitter=splitter,
                 loader=UnstructuredPDFLoader,
             )
-            documents = preprocessing_docs.load_docs(path=docs)
-            normalize_documents = preprocessing_docs.text_normalize(documents)
 
-            cleaned_docs = [
-                Document(page_content=d.page_content, metadata=d.metadata)
-                for d in normalize_documents
-            ]
-
-            self.vector_db.add_documents(documents=cleaned_docs)
-
-        elif ext == "doc":
+        elif file_type == "doc":
             preprocessing_docs = PreprocessingDocs(
-                splitter=RecursiveCharacterTextSplitter,
+                splitter=splitter,
                 loader=UnstructuredWordDocumentLoader,
             )
-            documents = preprocessing_docs.load_docs(path=docs)
-            normalize_documents = preprocessing_docs.text_normalize(documents)
 
-            cleaned_docs = [
-                Document(page_content=d.page_content, metadata=d.metadata)
-                for d in normalize_documents
-            ]
+        documents = preprocessing_docs.load_docs(path=docs)
+        normalize_documents = preprocessing_docs.text_normalize(documents)
+        cleaned_docs = [
+            Document(page_content=d.page_content, metadata=d.metadata)
+            for d in normalize_documents
+        ]
 
-            self.vector_db.add_documents(documents=cleaned_docs)
+        self.vector_db.add_documents(documents=cleaned_docs)
 
     def query_docs(self, query_text: str, chain, n_results: int = 3):
         store_retriever = self.vector_db.as_retriever(
